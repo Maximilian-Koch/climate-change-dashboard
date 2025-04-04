@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Climate Change Dashboard - Europe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <a href="neg" class="toggle-button">Toggle Negative View</a>
+            <h1 class="title-center">Climate Change Dashboard - positive framing</h1>
+            <div></div>
+        </div>
+        <div class="dropdown-container">
+            <select id="dropdownMenu">
+<option value="choose">choose country</option>
+<option value="Albania">Albania</option>
+<option value="Andorra">Andorra</option>
+<option value="Austria">Austria</option>
+<option value="Belarus">Belarus</option>
+<option value="Belgium">Belgium</option>
+<option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+<option value="Bulgaria">Bulgaria</option>
+<option value="Croatia">Croatia</option>
+<option value="Cyprus">Cyprus</option>
+<option value="Czechia">Czechia</option>
+<option value="Denmark">Denmark</option>
+<option value="Estonia">Estonia</option>
+<option value="Finland">Finland</option>
+<option value="France">France</option>
+<option value="Germany">Germany</option>
+<option value="Greece">Greece</option>
+<option value="Hungary">Hungary</option>
+<option value="Iceland">Iceland</option>
+<option value="Ireland">Ireland</option>
+<option value="Italy">Italy</option>
+<option value="Latvia">Latvia</option>
+<option value="Liechtenstein">Liechtenstein</option>
+<option value="Lithuania">Lithuania</option>
+<option value="Luxembourg">Luxembourg</option>
+<option value="Malta">Malta</option>
+<option value="Moldova">Moldova</option>
+<option value="Montenegro">Montenegro</option>
+<option value="Netherlands">Netherlands</option>
+<option value="North Macedonia">North Macedonia</option>
+<option value="Norway">Norway</option>
+<option value="Poland">Poland</option>
+<option value="Portugal">Portugal</option>
+<option value="Romania">Romania</option>
+<option value="Russia">Russia</option>
+<option value="Serbia">Serbia</option>
+<option value="Slovakia">Slovakia</option>
+<option value="Slovenia">Slovenia</option>
+<option value="Spain">Spain</option>
+<option value="Sweden">Sweden</option>
+<option value="Switzerland">Switzerland</option>
+<option value="Ukraine">Ukraine</option>
+<option value="United Kingdom">United Kingdom</option>
+<option value="in development">... European countries</option>
+        </select>
+        </div>
+    </header>
+    <main>
+    <div class="content left">
+        <canvas id="Plot1"></canvas>
+        <h3>Using renewable energies such as sun, wind, water and geothermal energy, a sustainable future can be build! [2]</h3>
+        <canvas id="Plot3"></canvas>
+        <h3> Emissions are going down! Change is on the way! [6]</h3>
+    </div>
+    <div class="divider"></div>
+    <div class="content right">
+        <canvas id="Plot2"></canvas>
+        <h3>Every policy is a step towards a greener planet! [3]</h3>
+        <canvas id="Plot4"></canvas>
+        <h3>Preserving our nature ensures a thriving planet for future generations! [7]</h3>
+    </div>
+<script>
+document.getElementById('dropdownMenu').addEventListener('change', function() {
+    fetchDataAndRenderChart(this.value);
+});
+
+var labels = ['RENEWABLE_ENERGY', 'POLICY_NUMBER', 'EMISSIONS', 'AREAS'];
+var titles = ['Renewable energy generation',
+             'Number of climate policies',
+             'Emissions', 'Protected land area'];
+var yAxisLabels = ['Gigawatt hours', 'Number',
+                   'tonnes of CO2-equivalent',
+                   'percentage'];
+const plotcontexts = [document.getElementById('Plot1').getContext('2d'),
+                    document.getElementById('Plot2').getContext('2d'),
+                    document.getElementById('Plot3').getContext('2d'),
+                    document.getElementById('Plot4').getContext('2d')];
+var graphs = new Array(4);
+function fetchDataAndRenderChart(item) {
+    fetch(`/data?item=${item}`)
+        .then(response => response.json())
+        .then(data => {
+            //Reset charts if they exist
+            graphs.forEach((graph, index) => {
+                if (graph != undefined) {
+                    graph.destroy();
+                }
+            });
+
+            // Render charts for each canvas
+            plotcontexts.forEach((ctx, index) => {
+                
+                var scatterChartData = {
+                    datasets: [{
+                        backgroundColor: 'rgb(50,255,150)',
+                        borderColor: 'rgb(50,255,150)',
+                        data: data[index].x.map((x, i) => ({x: x, y: data[index].y[i]}))
+                }]
+            };
+                var config = {
+                type: 'line',
+                data: scatterChartData,
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: yAxisLabels[index]
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: titles[index],
+                            color: '#FFFFFF',
+                            font: {
+                                size: 18
+                                }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            }
+                //Show chart
+                graphs[index] = new Chart(ctx, config); 
+            });
+        });
+}
+
+</script>
+    </main>
+    <footer>
+        <font color='#FFFFFF'>Maximilian Koch. CSSci Project.<br>
+        Sources: <a href="https://github.com/Maximilian-Koch/climate-change-dashboard">2, 3, 6, 7</a>
+        </font>
+    </footer>
+</body>
+</html>
